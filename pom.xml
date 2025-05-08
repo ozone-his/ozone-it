@@ -33,6 +33,7 @@
 
   <modules>
     <module>commons</module>
+    <module>fhir-dataset</module>
   </modules>
 
   <properties>
@@ -49,9 +50,16 @@
   <dependencies>
     <dependency>
       <groupId>com.ozonehis</groupId>
-      <artifactId>ozone-distro</artifactId>
+      <artifactId>ozone</artifactId>
       <version>${ozoneVersion}</version>
       <type>zip</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.9.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -119,6 +127,25 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>unpack-dependencies</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>pre-integration-test</phase>
+            <configuration>
+              <includeArtifactIds>ozone</includeArtifactIds>
+              <outputDirectory>${project.build.directory}/ozone</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
