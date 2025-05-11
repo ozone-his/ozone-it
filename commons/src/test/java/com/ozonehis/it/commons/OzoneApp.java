@@ -1,4 +1,4 @@
-package com.ozonehis.ozone_it_commons;
+package com.ozonehis.it.commons;
 
 import java.util.Comparator;
 import java.util.List;
