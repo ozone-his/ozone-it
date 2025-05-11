@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.ozonehis.ozone_it_commons;
+package com.ozonehis.it.commons;
 
 public class OzoneConstants {
     

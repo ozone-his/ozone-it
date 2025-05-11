@@ -1,4 +1,4 @@
-package com.ozonehis.ozone_it_commons;
+package com.ozonehis.it.commons;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.ozonehis.ozone_it_commons.OzoneConstants.DEFAULT_STARTUP_TIMEOUT_MINUTES;
-import static com.ozonehis.ozone_it_commons.OzoneConstants.OZONE_PATH;
-import static com.ozonehis.ozone_it_commons.OzoneConstants.TEST_DIR_NAME;
+import static com.ozonehis.it.commons.OzoneConstants.DEFAULT_STARTUP_TIMEOUT_MINUTES;
+import static com.ozonehis.it.commons.OzoneConstants.OZONE_PATH;
+import static com.ozonehis.it.commons.OzoneConstants.TEST_DIR_NAME;
 
 @Slf4j
 public class OzoneRunner implements AutoCloseable {
