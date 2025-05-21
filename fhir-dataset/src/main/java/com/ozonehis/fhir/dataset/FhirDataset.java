@@ -14,7 +14,9 @@ import org.hl7.fhir.r4.model.Resource;
 public enum FhirDataset {
     RICHARD_JONES(getPatient("fhir/dataset/richard.patient.json")),
 
-    JOSHUA_JOHNSON(getPatient("fhir/dataset/joshua.patient.json"));
+    JOSHUA_JOHNSON(getPatient("fhir/dataset/joshua.patient.json")),
+    
+    JAMES_SMITH(getPatient("fhir/dataset/james.patient.json"));
 
     private final Resource resource;
 
