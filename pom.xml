@@ -34,18 +34,32 @@
   <modules>
     <module>commons</module>
     <module>fhir-dataset</module>
+    <module>eip-odoo-openmrs-it</module>
   </modules>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <ozoneVersion>1.0.0-SNAPSHOT</ozoneVersion>
+    <ozoneVersion>1.0.0-alpha.13</ozoneVersion>
+    <fhir-r4.version>7.0.0</fhir-r4.version>
+    <test.containers.version>1.19.3</test.containers.version>
 
     <!-- Formatting plugins versions -->
     <spotless.version>2.30.0</spotless.version>
     <palantirJavaFormat.version>2.28.0</palantirJavaFormat.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers</artifactId>
+        <version>${test.containers.version}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -55,11 +69,42 @@
       <type>zip</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.ozonehis</groupId>
+      <artifactId>ozone-distro</artifactId>
+      <version>${ozoneVersion}</version>
+      <type>pom</type>
+    </dependency>
+
+    <!-- HAPI FHIR -->
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-base</artifactId>
+      <version>${fhir-r4.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-structures-r4</artifactId>
+      <version>${fhir-r4.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-client</artifactId>
+      <version>${fhir-r4.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>5.9.2</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.36</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
