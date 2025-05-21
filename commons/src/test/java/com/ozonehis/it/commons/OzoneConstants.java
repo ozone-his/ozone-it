@@ -11,7 +11,7 @@ public class OzoneConstants {
 
     public static final String OZONE_PATH = "target/ozone";
 
-    public static final String TEST_DIR_NAME = "target/ozone-test-workspace";
+    public static final String OZONE_TEST_WORKSPACE = "target/ozone-test-workspace";
 
-    public static final int DEFAULT_STARTUP_TIMEOUT_MINUTES = 10;
+    public static final int DEFAULT_STARTUP_TIMEOUT_MINUTES = 5;
 }
