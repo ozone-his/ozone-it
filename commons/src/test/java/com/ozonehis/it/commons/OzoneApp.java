@@ -23,13 +23,17 @@ public enum OzoneApp {
 
     ODOO(
             "http://localhost:8069",
-            new OzoneAppCredentials("", ""),
+            new OzoneAppCredentials("admin", "admin"),
             "/health",
             4,
             "docker-compose-odoo.yml",
             "docker-compose-odoo-sso.yml"),
 
-    KEYCLOAK("http://localhost:8084", new OzoneAppCredentials("", ""), "/health", 2, "docker-compose-keycloak.yml");
+    KEYCLOAK("http://localhost:8084",
+            new OzoneAppCredentials("admin", "password"),
+            "/health",
+            2,
+            "docker-compose-keycloak.yml");
 
     private static final String[] COMMON_DOCKER_COMPOSE_FILES = {"docker-compose-common.yml"};
 

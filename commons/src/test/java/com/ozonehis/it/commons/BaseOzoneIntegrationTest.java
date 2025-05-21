@@ -10,16 +10,21 @@ package com.ozonehis.it.commons;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.rest.client.api.IClientInterceptor;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
-import ca.uhn.fhir.rest.client.api.IHttpResponse;
-import java.io.IOException;
+import ca.uhn.fhir.rest.client.interceptor.BasicAuthInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
+import org.junit.jupiter.api.TestMethodOrder;
 
 @Slf4j
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 public abstract class BaseOzoneIntegrationTest {
 
     protected static OzoneRunner runner;
@@ -27,35 +32,34 @@ public abstract class BaseOzoneIntegrationTest {
     protected static boolean started;
 
     protected static IGenericClient openmrsFhirClient() {
-        FhirContext fhirContext = FhirContext.forR4();
-        String fhirServerUrl = OzoneApp.OPENMRS.baseUrl() + "/ws/fhir2/R4";
-        IGenericClient client = fhirContext.newRestfulGenericClient(fhirServerUrl);
+        FhirContext ctx = FhirContext.forR4();
+        String fhirBaseServerUrl = OzoneApp.OPENMRS.baseUrl() + "/ws/fhir2/R4";
 
-        // Create custom interceptor that implements the correct interface
-        IClientInterceptor authInterceptor = new IClientInterceptor() {
+        // Set the credentials for the FHIR client
+        // TODO: Add support for SSO
+        OzoneAppCredentials credentials = OzoneApp.OPENMRS.credentials();
+        BasicAuthInterceptor interceptor = new BasicAuthInterceptor(credentials.username(), credentials.password());
+        IGenericClient client = ctx.newRestfulGenericClient(fhirBaseServerUrl);
+        client.registerInterceptor(interceptor);
 
-            @Override
-            public void interceptRequest(ca.uhn.fhir.rest.client.api.IHttpRequest theRequest) {
-                String credentials = OzoneApp.OPENMRS.credentials().username() + ":"
-                        + OzoneApp.OPENMRS.credentials().password();
-                String base64Credentials = java.util.Base64.getEncoder().encodeToString(credentials.getBytes());
-                theRequest.addHeader("Authorization", "Basic " + base64Credentials);
-            }
-
-            @Override
-            public void interceptResponse(IHttpResponse iHttpResponse) throws IOException {}
-        };
-
-        log.info("Using FHIR server URL: {}", fhirServerUrl);
-        log.info(
-                "Using Basic Auth credentials: {}:{}",
-                OzoneApp.OPENMRS.credentials().username(),
-                OzoneApp.OPENMRS.credentials().password());
-
-        client.registerInterceptor(authInterceptor);
         return client;
     }
 
+    /**
+     * Wait for a specified number of seconds.
+     *
+     * @param seconds the number of seconds to wait
+     */
+    protected static void wait(int seconds) {
+        try {
+            Thread.sleep(seconds * 1000L);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread interrupted while waiting", e);
+        }
+    }
+
+    @Order(0)
     @Test
     @DisplayName("It should start Ozone successfully")
     void shouldStartOzoneInstance() {
@@ -67,7 +71,7 @@ public abstract class BaseOzoneIntegrationTest {
     static void tearDown() throws Exception {
         log.info("Stopping Ozone...");
         // sleep 5 minutes
-        // Thread.sleep(2 * 60 * 1000);
+        // Thread.sleep(5 * 60 * 1000);
         if (runner != null) {
             runner.close();
         }
