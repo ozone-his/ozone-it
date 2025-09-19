@@ -69,9 +69,9 @@ public abstract class BaseOzoneIntegrationTest {
 
     @AfterAll
     static void tearDown() throws Exception {
-        log.info("Stopping Ozone...");
-        // sleep 5 minutes
-        // Thread.sleep(5 * 60 * 1000);
+        // sleep 30 secs
+        log.info("Tearing down Ozone integration test environment...");
+        wait(30);
         if (runner != null) {
             runner.close();
         }
