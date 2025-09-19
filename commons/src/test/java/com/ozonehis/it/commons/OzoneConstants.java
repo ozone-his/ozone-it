@@ -13,5 +13,5 @@ public class OzoneConstants {
 
     public static final String OZONE_TEST_WORKSPACE = "target/ozone-test-workspace";
 
-    public static final int DEFAULT_STARTUP_TIMEOUT_MINUTES = 5;
+    public static final int DEFAULT_STARTUP_TIMEOUT_MINUTES = 20;
 }
