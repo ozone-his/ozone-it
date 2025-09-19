@@ -24,12 +24,13 @@ public enum OzoneApp {
     ODOO(
             "http://localhost:8069",
             new OzoneAppCredentials("admin", "admin"),
-            "/health",
+            "/",
             4,
             "docker-compose-odoo.yml",
             "docker-compose-odoo-sso.yml"),
 
-    KEYCLOAK("http://localhost:8084",
+    KEYCLOAK(
+            "http://localhost:8084",
             new OzoneAppCredentials("admin", "password"),
             "/health",
             2,
@@ -96,5 +97,14 @@ public enum OzoneApp {
         // Add common docker compose files at the beginning
         return Stream.concat(Stream.of(COMMON_DOCKER_COMPOSE_FILES), sortedDockerComposeFiles.stream())
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Checks if the app is running by verifying the health check endpoint.
+     *
+     * @return true if the app is running, false otherwise
+     */
+    public boolean isRunning(OzoneApp app) {
+        return OzoneAppReadinessChecker.isReady(app);
     }
 }
