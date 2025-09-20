@@ -13,9 +13,11 @@ import com.ozonehis.it.commons.BaseOzoneIntegrationTest;
 import com.ozonehis.it.commons.OzoneApp;
 import java.util.List;
 import lombok.Getter;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.env.StandardEnvironment;
 
 @Getter
+@ExtendWith(BaseOdooOpenmrsExtension.class)
 public abstract class BaseOdooOpenmrsIntegrationTest extends BaseOzoneIntegrationTest {
 
     protected static OdooUtils odooUtils;

@@ -116,7 +116,7 @@ public class OzoneRunner implements AutoCloseable {
      * @throws InterruptedException if the process is interrupted
      */
     public void stop() throws IOException, InterruptedException {
-        executeScript("stop.sh", 2);
+        executeScript("stop-demo.sh", 2);
     }
 
     /**
