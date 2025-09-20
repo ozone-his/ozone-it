@@ -7,18 +7,12 @@
  */
 package com.ozonehis.it.commons;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.interceptor.BasicAuthInterceptor;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.ClassOrderer;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -56,24 +50,6 @@ public abstract class BaseOzoneIntegrationTest {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error("Thread interrupted while waiting", e);
-        }
-    }
-
-    @Order(0)
-    @Test
-    @DisplayName("It should start Ozone successfully")
-    void shouldStartOzoneInstance() {
-        // Your test code here
-        assertTrue(started, "Ozone should be started successfully");
-    }
-
-    @AfterAll
-    static void tearDown() throws Exception {
-        // sleep 30 secs
-        log.info("Tearing down Ozone integration test environment...");
-        wait(30);
-        if (runner != null) {
-            runner.close();
         }
     }
 }

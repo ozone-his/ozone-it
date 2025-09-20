@@ -17,14 +17,9 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import com.ozonehis.eip.odoo.openmrs.Constants;
 import com.ozonehis.eip.odoo.openmrs.model.Partner;
 import com.ozonehis.fhir.dataset.FhirDataset;
-import com.ozonehis.it.commons.OzoneApp;
-import com.ozonehis.it.commons.OzoneAppReadinessChecker;
-import com.ozonehis.it.commons.OzoneRunner;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.list.UnmodifiableList;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.StringType;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,25 +35,12 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class OpenmrsPatientToOdooPartnerIntegrationTest extends BaseOdooOpenmrsIntegrationTest {
 
-    private static final UnmodifiableList<OzoneApp> apps =
-            new UnmodifiableList<>(List.of(OzoneApp.OPENMRS, OzoneApp.ODOO));
-
     private static final Patient patientJamesSmith = (Patient) FhirDataset.JAMES_SMITH.getResource();
 
     private static String patientIdForJamesSmith;
 
     @BeforeAll
-    static void setup() throws IOException, InterruptedException {
-        runner = new OzoneRunner();
-        started = runner.startOzone(apps);
-
-        boolean allReady = OzoneAppReadinessChecker.waitForAppsReady(360, apps);
-
-        assertTrue(started, "Failed to start Ozone apps: " + apps);
-        assertTrue(allReady, "Not all apps are ready within the timeout period");
-
-        wait(10); // Wait for the apps to stabilize after startup
-
+    static void setup() {
         // Set up the Odoo and OpenMRS utilities
         setupOdooUtils();
 
@@ -74,16 +56,6 @@ public class OpenmrsPatientToOdooPartnerIntegrationTest extends BaseOdooOpenmrsI
         assertTrue(outcome.getCreated());
 
         patientIdForJamesSmith = outcome.getId().getIdPart();
-    }
-
-    @Test
-    @Order(1)
-    @DisplayName("Should start Odoo and OpenMRS apps")
-    void shouldStartOdooAndOpenmrsApps() {
-        List<OzoneApp> runningApps = runner.getRunningApps();
-
-        assertTrue(runningApps.contains(OzoneApp.OPENMRS));
-        assertTrue(runningApps.contains(OzoneApp.ODOO));
     }
 
     @Test
