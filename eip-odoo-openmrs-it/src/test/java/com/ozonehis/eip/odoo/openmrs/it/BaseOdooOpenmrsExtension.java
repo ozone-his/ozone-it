@@ -14,10 +14,11 @@ import com.ozonehis.it.commons.OzoneAppReadinessChecker;
 import com.ozonehis.it.commons.OzoneRunner;
 import java.util.List;
 import org.apache.commons.collections4.list.UnmodifiableList;
+import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-class BaseOdooOpenmrsExtension implements BeforeAllCallback {
+class BaseOdooOpenmrsExtension implements BeforeAllCallback, AfterAllCallback {
 
     private static boolean isRunning = false;
 
@@ -40,13 +41,13 @@ class BaseOdooOpenmrsExtension implements BeforeAllCallback {
 
             isRunning = true;
 
-            // Wait for a minute to ensure stability before running tests
-            Thread.sleep(60000);
-	        
-	        var ozoneApps = runner.getRunningApps();
-	        
-	        assertTrue(ozoneApps.contains(OzoneApp.ODOO));
-	        assertTrue(ozoneApps.contains(OzoneApp.OPENMRS));
+            // Wait for 30 secs to ensure stability before running tests
+            Thread.sleep(30000);
+
+            var ozoneApps = runner.getRunningApps();
+
+            assertTrue(ozoneApps.contains(OzoneApp.ODOO));
+            assertTrue(ozoneApps.contains(OzoneApp.OPENMRS));
 
             context.getRoot()
                     .getStore(ExtensionContext.Namespace.GLOBAL)
@@ -54,6 +55,20 @@ class BaseOdooOpenmrsExtension implements BeforeAllCallback {
                         runner.destroy();
                         isRunning = false;
                     });
+        }
+    }
+
+    @Override
+    public void afterAll(ExtensionContext context) throws Exception {
+        if (isRunning) {
+            try {
+                context.getRoot()
+                        .getStore(ExtensionContext.Namespace.GLOBAL)
+                        .get("ozoneRunner", ExtensionContext.Store.CloseableResource.class)
+                        .close();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
