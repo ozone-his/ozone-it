@@ -16,7 +16,9 @@ public enum FhirDataset {
 
     JOSHUA_JOHNSON(getPatient("fhir/dataset/joshua.patient.json")),
 
-    JAMES_SMITH(getPatient("fhir/dataset/james.patient.json"));
+    JAMES_SMITH(getPatient("fhir/dataset/james.patient.json")),
+
+    MARY_JANE(getPatient("fhir/dataset/mary.patient.json"));
 
     private final Resource resource;
 
