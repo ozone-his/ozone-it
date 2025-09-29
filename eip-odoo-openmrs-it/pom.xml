@@ -26,6 +26,11 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <eip.odoo.openmrs.version>2.2.0-SNAPSHOT</eip.odoo.openmrs.version>
+    <wiremock.version>3.9.1</wiremock.version>
+    <jakarta.activation.api.version>2.1.3</jakarta.activation.api.version>
+    <jackson.core.version>2.16.1</jackson.core.version>
+    <jakarta.xml.bind.api.version>4.0.2</jakarta.xml.bind.api.version>
+    <jaxb.impl.version>4.0.0</jaxb.impl.version>
   </properties>
 
   <dependencies>
@@ -46,9 +51,89 @@
 
     <dependency>
       <groupId>com.ozonehis</groupId>
+      <artifactId>test-infra-odoo</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.ozonehis</groupId>
       <artifactId>eip-odoo-openmrs</artifactId>
       <version>${eip.odoo.openmrs.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.activation</groupId>
+      <artifactId>jakarta.activation-api</artifactId>
+      <version>${jakarta.activation.api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.core.version}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>${jakarta.xml.bind.api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>${jaxb.impl.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test-infra-core</artifactId>
+      <version>${camel.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test-spring-junit5</artifactId>
+      <version>${camel.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-dependencies</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-test-resources</phase>
+            <configuration>
+              <includeGroupIds>com.ozonehis</includeGroupIds>
+              <includeArtifactIds>ozone</includeArtifactIds>
+              <includeTypes>zip</includeTypes>
+              <includes>distro/binaries/odoo/**,
+                                distro/configs/odoo/**,
+                                distro/data/postgresql/odoo/,
+                                distro/data/postgresql/**.sh,</includes>
+              <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
