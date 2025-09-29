@@ -35,6 +35,7 @@
     <module>commons</module>
     <module>fhir-dataset</module>
     <module>eip-odoo-openmrs-it</module>
+    <module>test-infra</module>
   </modules>
 
   <properties>
@@ -44,6 +45,8 @@
     <ozoneVersion>1.0.0-SNAPSHOT</ozoneVersion>
     <fhir-r4.version>7.0.0</fhir-r4.version>
     <test.containers.version>1.19.3</test.containers.version>
+    <camel.version>4.1.0</camel.version>
+    <eip.client.version>2.3.0-SNAPSHOT</eip.client.version>
 
     <!-- Formatting plugins versions -->
     <spotless.version>2.30.0</spotless.version>
@@ -106,6 +109,39 @@
       <artifactId>lombok</artifactId>
       <version>1.18.36</version>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test-infra-common</artifactId>
+      <version>${camel.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.9.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <version>${test.containers.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.ozonehis</groupId>
+      <artifactId>eip-commons-test</artifactId>
+      <version>${eip.client.version}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
   <repositories>
