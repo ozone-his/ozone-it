@@ -88,6 +88,8 @@ public abstract class BaseRouteCamelIntegrationTest {
 
     private static final String odooCustomerDobField = "x_customer_dob";
 
+    private static final String odooCustomerIdField = "x_external_identifier";
+
     protected static final List<String> orderDefaultAttributes = asList(
             "id",
             "client_order_ref",
@@ -97,8 +99,18 @@ public abstract class BaseRouteCamelIntegrationTest {
             odooCustomerWeightField,
             odooCustomerDobField);
 
-    protected static final List<String> partnerDefaultAttributes =
-            asList("id", "name", "ref", "street", "street2", "city", "zip", "active", "comment", odooCustomerDobField);
+    protected static final List<String> partnerDefaultAttributes = asList(
+            "id",
+            "name",
+            "ref",
+            "street",
+            "street2",
+            "city",
+            "zip",
+            "active",
+            "comment",
+            odooCustomerDobField,
+            odooCustomerIdField);
 
     protected WireMockServer wireMockServer = new WireMockServer(8080);
 
@@ -179,6 +191,7 @@ public abstract class BaseRouteCamelIntegrationTest {
         partnerHandler.setPartnerMapper(partnerMapper);
         partnerHandler.setOdooUtils(odooUtils);
         partnerHandler.setOdooCustomerDobField(odooCustomerDobField);
+        partnerHandler.setOdooCustomerIdField(odooCustomerIdField);
         partnerHandler.setPartnerDefaultAttributes(partnerDefaultAttributes);
 
         // Setup IGenericClient
@@ -209,6 +222,7 @@ public abstract class BaseRouteCamelIntegrationTest {
         saleOrderHandler.setWeightConcept("5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         saleOrderHandler.setOdooCustomerWeightField(odooCustomerWeightField);
         saleOrderHandler.setOdooCustomerDobField(odooCustomerDobField);
+        saleOrderHandler.setOdooCustomerIdField(odooCustomerIdField);
         saleOrderHandler.setOrderDefaultAttributes(orderDefaultAttributes);
         saleOrderHandler.setOdooUtils(odooUtils);
 
