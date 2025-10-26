@@ -23,6 +23,7 @@
 
   <modules>
     <module>test-infra-odoo</module>
+    <module>test-infra-senaite</module>
   </modules>
 
   <properties>
