@@ -36,6 +36,7 @@
     <module>fhir-dataset</module>
     <module>eip-odoo-openmrs-it</module>
     <module>test-infra</module>
+    <module>eip-openmrs-senaite-it</module>
   </modules>
 
   <distributionManagement>
