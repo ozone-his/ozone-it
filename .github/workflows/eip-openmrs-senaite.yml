@@ -1,0 +1,18 @@
+name: EIP OpenMRS SENAITE Integration Tests
+
+on:
+  repository_dispatch:
+    types: [ trigger-workflow ]
+
+jobs:
+  spotless:
+    uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-spotless-check.yml@main
+
+  validate:
+    needs: spotless
+    uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-build-test.yml@main
+    with:
+      maven-args: '-pl eip-openmrs-senaite-it -am'
+    secrets:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
