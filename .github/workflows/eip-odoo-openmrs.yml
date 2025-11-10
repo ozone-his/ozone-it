@@ -2,7 +2,7 @@ name: EIP Odoo OpenMRS Integration Tests
 
 on:
   repository_dispatch:
-    types: [ trigger-workflow ]
+    types: [ eip-odoo-openmrs-it ]
 
 jobs:
   spotless:

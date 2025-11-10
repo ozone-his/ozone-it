@@ -2,7 +2,7 @@ name: EIP OpenMRS SENAITE Integration Tests
 
 on:
   repository_dispatch:
-    types: [ trigger-workflow ]
+    types: [ eip-openmrs-senaite-it ]
 
 jobs:
   spotless:
