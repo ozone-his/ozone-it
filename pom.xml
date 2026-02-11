@@ -60,7 +60,7 @@
     <fhir-r4.version>7.0.0</fhir-r4.version>
     <test.containers.version>1.19.3</test.containers.version>
     <camel.version>4.1.0</camel.version>
-    <eip.client.version>2.3.0-SNAPSHOT</eip.client.version>
+    <eip.client.version>2.4.0-SNAPSHOT</eip.client.version>
 
     <!-- Formatting plugins versions -->
     <spotless.version>2.30.0</spotless.version>
