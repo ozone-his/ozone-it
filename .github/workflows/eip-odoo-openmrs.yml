@@ -12,7 +12,7 @@ jobs:
     needs: spotless
     uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-build-test.yml@main
     with:
-      maven-args: '-pl eip-odoo-openmrs-it -am'
+      maven-args: '-pl !eip-odoo-openmrs-it -am'
     secrets:
       NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
