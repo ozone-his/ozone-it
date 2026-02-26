@@ -13,7 +13,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ozonehis</groupId>
   <artifactId>ozone-it</artifactId>
-  <version>1.0.0-alpha.15</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Ozone Integration Tests</name>
   <description>Integration tests for Ozone data flows</description>
@@ -56,11 +56,11 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <ozoneVersion>1.0.0-alpha.15</ozoneVersion>
+    <ozoneVersion>1.0.0-SNAPSHOT</ozoneVersion>
     <fhir-r4.version>7.0.0</fhir-r4.version>
     <test.containers.version>1.21.4</test.containers.version>
     <camel.version>4.1.0</camel.version>
-    <eip.client.version>2.3.0</eip.client.version>
+    <eip.client.version>2.4.0-SNAPSHOT</eip.client.version>
 
     <!-- Formatting plugins versions -->
     <spotless.version>2.30.0</spotless.version>
