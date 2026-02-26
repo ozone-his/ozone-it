@@ -232,12 +232,25 @@ public class OzoneRunner implements AutoCloseable {
             log.info("Starting the specified apps: {}", apps);
             List<String> dockerComposeFiles = OzoneApp.sortedDockerComposeFiles(apps);
 
+            // Filter out docker-compose files that don't exist in the Ozone distribution
+            Path dockerComposeDir = ozoneDir.resolve("run/docker");
+            List<String> existingDockerComposeFiles = dockerComposeFiles.stream()
+                    .filter(fileName -> {
+                        Path filePath = dockerComposeDir.resolve(fileName);
+                        boolean exists = Files.exists(filePath);
+                        if (!exists) {
+                            log.warn("Docker compose file {} does not exist, skipping", fileName);
+                        }
+                        return exists;
+                    })
+                    .toList();
+
             Path scriptsDir = ozoneDir.resolve("run/docker/scripts");
             Path dockerComposeFilesPath = scriptsDir.resolve("docker-compose-files.txt");
 
-            String content = String.join("\n", dockerComposeFiles);
+            String content = String.join("\n", existingDockerComposeFiles);
             Files.writeString(dockerComposeFilesPath, content);
-            log.info("Updated docker-compose-files.txt with: {}", dockerComposeFiles);
+            log.info("Updated docker-compose-files.txt with: {}", existingDockerComposeFiles);
         }
     }
 
