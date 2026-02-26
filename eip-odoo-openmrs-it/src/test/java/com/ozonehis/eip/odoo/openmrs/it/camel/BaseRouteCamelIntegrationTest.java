@@ -126,7 +126,7 @@ public abstract class BaseRouteCamelIntegrationTest {
 
     @RegisterExtension
     protected static CamelContextExtension contextExtension = new DefaultCamelContextExtension();
-    
+
     @ContextFixture
     public void configureContext(CamelContext context) {
         OdooComponent odooComponent = context.getComponent("odoo", OdooComponent.class);

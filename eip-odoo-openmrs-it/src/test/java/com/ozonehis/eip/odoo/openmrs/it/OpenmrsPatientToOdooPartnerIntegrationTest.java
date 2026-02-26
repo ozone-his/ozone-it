@@ -56,6 +56,20 @@ public class OpenmrsPatientToOdooPartnerIntegrationTest extends BaseOdooOpenmrsI
         assertTrue(outcome.getCreated());
 
         patientIdForJamesSmith = outcome.getId().getIdPart();
+
+        // Wait for the patient to be synchronized to Odoo
+        wait(20);
+
+        // Verify the patient was synchronized to Odoo before proceeding with tests
+        Object[] result = odooClient()
+                .searchAndRead(
+                        Constants.PARTNER_MODEL,
+                        List.of(asList("ref", "=", patientIdForJamesSmith)),
+                        partnerDefaultAttributes);
+
+        assertNotNull(result, "Partner search result should not be null");
+        assertTrue(result.length > 0, "James Smith patient should be synchronized to Odoo before tests run");
+        log.info("Successfully verified James Smith patient is synced to Odoo: {}", result);
     }
 
     @Test
@@ -250,6 +264,9 @@ public class OpenmrsPatientToOdooPartnerIntegrationTest extends BaseOdooOpenmrsI
                         Constants.PARTNER_MODEL,
                         List.of(asList("ref", "=", patientIdForJamesSmith)),
                         partnerDefaultAttributes);
+
+        assertNotNull(result);
+        assertTrue(result.length > 0);
 
         Partner finalPartner = odooUtils.convertToObject((Map<String, Object>) result[0], Partner.class);
 

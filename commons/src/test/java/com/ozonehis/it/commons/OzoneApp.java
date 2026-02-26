@@ -27,7 +27,9 @@ public enum OzoneApp {
             "/",
             4,
             "docker-compose-odoo.yml",
-            "docker-compose-odoo-sso.yml"),
+            "docker-compose-odoo-sso.yml",
+            "docker-compose-eip-odoo-openmrs.yml",
+            "docker-compose-eip-odoo-openmrs-sso.yml"),
 
     KEYCLOAK(
             "http://localhost:8084",
