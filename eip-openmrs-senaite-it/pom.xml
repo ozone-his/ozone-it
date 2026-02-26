@@ -13,7 +13,7 @@
   <parent>
     <groupId>com.ozonehis</groupId>
     <artifactId>ozone-it</artifactId>
-    <version>1.0.0-alpha.15</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>eip-openmrs-senaite-it</artifactId>
@@ -31,7 +31,7 @@
     <jackson.core.version>2.16.1</jackson.core.version>
     <jakarta.xml.bind.api.version>4.0.2</jakarta.xml.bind.api.version>
     <jaxb.impl.version>4.0.0</jaxb.impl.version>
-    <eip.openmrs.senaite.version>2.2.0</eip.openmrs.senaite.version>
+    <eip.openmrs.senaite.version>2.3.0-SNAPSHOT</eip.openmrs.senaite.version>
   </properties>
 
   <dependencies>
