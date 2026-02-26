@@ -58,7 +58,7 @@
 
     <ozoneVersion>1.0.0-SNAPSHOT</ozoneVersion>
     <fhir-r4.version>7.0.0</fhir-r4.version>
-    <test.containers.version>1.19.3</test.containers.version>
+    <test.containers.version>1.21.4</test.containers.version>
     <camel.version>4.1.0</camel.version>
     <eip.client.version>2.3.0-SNAPSHOT</eip.client.version>
 
@@ -75,6 +75,28 @@
         <version>${test.containers.version}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>com.ozonehis</groupId>
+        <artifactId>ozone-distro</artifactId>
+        <version>${ozoneVersion}</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>ca.uhn.hapi.fhir</groupId>
+        <artifactId>hapi-fhir-base</artifactId>
+        <version>${fhir-r4.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ca.uhn.hapi.fhir</groupId>
+        <artifactId>hapi-fhir-structures-r4</artifactId>
+        <version>${fhir-r4.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ca.uhn.hapi.fhir</groupId>
+        <artifactId>hapi-fhir-client</artifactId>
+        <version>${fhir-r4.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -86,29 +108,20 @@
       <type>zip</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.ozonehis</groupId>
-      <artifactId>ozone-distro</artifactId>
-      <version>${ozoneVersion}</version>
-      <type>pom</type>
-    </dependency>
 
     <!-- HAPI FHIR -->
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-base</artifactId>
-      <version>${fhir-r4.version}</version>
     </dependency>
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-structures-r4</artifactId>
-      <version>${fhir-r4.version}</version>
     </dependency>
 
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-client</artifactId>
-      <version>${fhir-r4.version}</version>
     </dependency>
 
     <dependency>
@@ -143,6 +156,12 @@
       <artifactId>testcontainers</artifactId>
       <version>${test.containers.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -154,6 +173,10 @@
         <exclusion>
           <groupId>ch.qos.logback</groupId>
           <artifactId>logback-classic</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -337,6 +360,15 @@
             <phase>install</phase>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <api.version>1.44</api.version>
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
     </plugins>
   </build>
