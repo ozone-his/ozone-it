@@ -28,12 +28,16 @@ public class OdooLocalContainerService implements OdooService {
 
     @Override
     public int getPort() {
-        return container.getServicePort(SERVICE_NAME, OdooProperties.DEFAULT_SERVICE_PORT);
+        int mappedPort = container.getServicePort(SERVICE_NAME, OdooProperties.DEFAULT_SERVICE_PORT);
+        log.info("Mapped Odoo service port: {}", mappedPort);
+        return mappedPort;
     }
 
     @Override
     public String getHost() {
-        return container.getServiceHost(SERVICE_NAME, OdooProperties.DEFAULT_SERVICE_PORT);
+        var mappedHost = container.getServiceHost(SERVICE_NAME, OdooProperties.DEFAULT_SERVICE_PORT);
+        log.info("Mapped Odoo service host: {}", mappedHost);
+        return mappedHost;
     }
 
     @Override
@@ -59,10 +63,11 @@ public class OdooLocalContainerService implements OdooService {
     }
 
     protected ComposeContainer initContainer() {
-        try (var container = new ComposeContainer(getFile("docker-compose/docker-compose-odoo.yml"))
-                .withLocalCompose(true)
-                .withStartupTimeout(java.time.Duration.ofMinutes(5))
-                .withExposedService(SERVICE_NAME, OdooProperties.DEFAULT_SERVICE_PORT, Wait.forListeningPort())) {
+        try {
+            var container = new ComposeContainer(new File("target/test-classes/docker-compose/docker-compose-odoo.yml"))
+                    .withLocalCompose(true)
+                    .withStartupTimeout(java.time.Duration.ofMinutes(5))
+                    .withExposedService(SERVICE_NAME, OdooProperties.DEFAULT_SERVICE_PORT, Wait.forListeningPort());
 
             return container;
         } catch (Exception e) {

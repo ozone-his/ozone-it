@@ -20,7 +20,7 @@ services:
       - INITIALIZER_CONFIG_FILE_PATH=/mnt/odoo_config/initializer_config.json
     image: mekomsolutions/odoo
     ports:
-      - '8061:8069'
+      - '8069:8069'
     restart: unless-stopped
     volumes:
       - "odoo-filestore:/var/lib/odoo/filestore"

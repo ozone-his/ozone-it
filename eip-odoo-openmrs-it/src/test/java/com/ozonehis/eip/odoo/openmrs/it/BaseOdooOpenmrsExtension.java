@@ -59,7 +59,7 @@ class BaseOdooOpenmrsExtension implements BeforeAllCallback, AfterAllCallback {
     }
 
     @Override
-    public void afterAll(ExtensionContext context) throws Exception {
+    public void afterAll(ExtensionContext context) {
         if (isRunning) {
             try {
                 context.getRoot()

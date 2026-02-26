@@ -18,8 +18,6 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.interceptor.BasicAuthInterceptor;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.ozonehis.camel.test.infra.odoo.services.OdooService;
-import com.ozonehis.camel.test.infra.odoo.services.OdooServiceFactory;
 import com.ozonehis.eip.odoo.openmrs.client.OdooClient;
 import com.ozonehis.eip.odoo.openmrs.client.OdooUtils;
 import com.ozonehis.eip.odoo.openmrs.component.OdooComponent;
@@ -59,6 +57,7 @@ import org.apache.camel.test.infra.core.DefaultCamelContextExtension;
 import org.apache.camel.test.infra.core.annotations.ContextFixture;
 import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
 import org.hl7.fhir.r4.model.Resource;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -68,6 +67,7 @@ import org.springframework.test.context.ActiveProfiles;
 @Getter
 @ActiveProfiles("test")
 @CamelSpringBootTest
+@ExtendWith(BaseOdooExtension.class)
 @SpringBootTest(classes = {TestSpringConfiguration.class})
 public abstract class BaseRouteCamelIntegrationTest {
 
@@ -126,10 +126,7 @@ public abstract class BaseRouteCamelIntegrationTest {
 
     @RegisterExtension
     protected static CamelContextExtension contextExtension = new DefaultCamelContextExtension();
-
-    @RegisterExtension
-    protected static final OdooService odooService = OdooServiceFactory.createSingletonService();
-
+    
     @ContextFixture
     public void configureContext(CamelContext context) {
         OdooComponent odooComponent = context.getComponent("odoo", OdooComponent.class);
@@ -138,7 +135,11 @@ public abstract class BaseRouteCamelIntegrationTest {
     }
 
     protected static OdooClient createOdooClient() {
-        return new OdooClient(ODOO_SERVER_URL, ODOO_DATABASE, ODOO_USERNAME, ODOO_PASSWORD);
+        String odooServerUrl = String.format(
+                "http://%s:%d",
+                BaseOdooExtension.getOdooService().getHost(),
+                BaseOdooExtension.getOdooService().getPort());
+        return new OdooClient(odooServerUrl, ODOO_DATABASE, ODOO_USERNAME, ODOO_PASSWORD);
     }
 
     public OdooClient getOdooClient() {

@@ -60,13 +60,14 @@ public class SenaiteLocalContainerService implements SenaiteService {
     }
 
     protected ComposeContainer initContainer() {
-        try (var container = new ComposeContainer(getFile("docker-compose/docker-compose-senaite.yml"))
-                .withLocalCompose(true)
-                .withStartupTimeout(java.time.Duration.ofMinutes(5))
-                .withExposedService(
-                        SERVICE_NAME,
-                        SenaiteProperties.DEFAULT_SERVICE_PORT,
-                        Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(5)))) {
+        try {
+            var container = new ComposeContainer(getFile("docker-compose/docker-compose-senaite.yml"))
+                    .withLocalCompose(true)
+                    .withStartupTimeout(java.time.Duration.ofMinutes(5))
+                    .withExposedService(
+                            SERVICE_NAME,
+                            SenaiteProperties.DEFAULT_SERVICE_PORT,
+                            Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(5)));
 
             return container;
         } catch (Exception e) {
