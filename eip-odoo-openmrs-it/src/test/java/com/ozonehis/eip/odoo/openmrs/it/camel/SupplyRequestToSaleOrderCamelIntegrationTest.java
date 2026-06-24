@@ -14,6 +14,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelExecutionException;
 import org.apache.camel.test.infra.core.annotations.RouteFixture;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.SupplyRequest;
@@ -227,6 +229,46 @@ public class SupplyRequestToSaleOrderCamelIntegrationTest extends BaseRouteCamel
         Bundle bundle = new Bundle();
         bundle.addEntry().setResource(supplyRequest);
         sendBodyAndHeaders("direct:supplyrequest-to-sale-order-processor", bundle, headers);
+
+        // Verify no sale order was created
+        Object[] result = getOdooClient()
+                .searchAndRead(
+                        Constants.SALE_ORDER_MODEL,
+                        List.of(asList("client_order_ref", "=", ENCOUNTER_PART_OF_UUID)),
+                        orderDefaultAttributes);
+
+        assertNotNull(result);
+        assertEquals(0, result.length);
+    }
+
+    @Test
+    @DisplayName("Should throw exception given an unsupported event type")
+    public void shouldThrowExceptionGivenUnsupportedEventType() {
+        // Setup
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Observation\\?.*"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.bundle/empty-bundle.json"))));
+
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Encounter/" + ENCOUNTER_UUID))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.encounter/encounter.json"))));
+
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Patient/" + PATIENT_UUID))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir/patient/patient-3.json"))));
+
+        // Act - an unsupported event type must fail the route
+        var headers = new HashMap<String, Object>();
+        headers.put(HEADER_FHIR_EVENT_TYPE, "x");
+        Bundle bundle = new Bundle();
+        bundle.addEntry().setResource(supplyRequest);
+
+        assertThrows(
+                CamelExecutionException.class,
+                () -> sendBodyAndHeaders("direct:supplyrequest-to-sale-order-processor", bundle, headers));
 
         // Verify no sale order was created
         Object[] result = getOdooClient()
