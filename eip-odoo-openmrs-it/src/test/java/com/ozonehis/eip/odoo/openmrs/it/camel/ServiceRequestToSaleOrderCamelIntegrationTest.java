@@ -15,6 +15,7 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openmrs.eip.fhir.Constants.HEADER_FHIR_EVENT_TYPE;
 
@@ -36,8 +37,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelExecutionException;
 import org.apache.camel.test.infra.core.annotations.RouteFixture;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.ServiceRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -280,5 +283,142 @@ public class ServiceRequestToSaleOrderCamelIntegrationTest extends BaseRouteCame
 
         // verify sale order has no sale order line
         assertTrue(updatedSaleOrder.getOrderLine().isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should not cancel sale order when a completed service request is discontinued.")
+    public void shouldNotCancelSaleOrderWhenCompletedServiceRequestDiscontinued() {
+        // Setup
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Observation\\?.*"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.bundle/observation-weight-bundle.json"))));
+
+        // Create sale order
+        var headers = new HashMap<String, Object>();
+        headers.put(HEADER_FHIR_EVENT_TYPE, "c");
+        sendBodyAndHeaders("direct:service-request-to-sale-order-processor", serviceRequestBundle, headers);
+
+        Object[] result = getOdooClient()
+                .searchAndRead(
+                        Constants.SALE_ORDER_MODEL,
+                        List.of(asList("client_order_ref", "=", ENCOUNTER_PART_OF_UUID), asList("state", "=", "draft")),
+                        orderDefaultAttributes);
+
+        assertNotNull(result);
+        assertNotNull(result[0]);
+
+        // A completed order is fulfilled in OpenMRS, so discontinuing it must not cancel the sale order
+        for (Bundle.BundleEntryComponent entry : serviceRequestBundle.getEntry()) {
+            if (entry.getResource() instanceof ServiceRequest serviceRequest) {
+                serviceRequest.setStatus(ServiceRequest.ServiceRequestStatus.COMPLETED);
+            }
+        }
+
+        headers.put(HEADER_FHIR_EVENT_TYPE, "d");
+        sendBodyAndHeaders("direct:service-request-to-sale-order-processor", serviceRequestBundle, headers);
+
+        // Verify the sale order is still a draft and was not cancelled
+        result = getOdooClient()
+                .searchAndRead(
+                        Constants.SALE_ORDER_MODEL,
+                        List.of(asList("client_order_ref", "=", ENCOUNTER_PART_OF_UUID), asList("state", "=", "draft")),
+                        orderDefaultAttributes);
+
+        assertNotNull(result);
+        assertNotNull(result[0]);
+
+        result = getOdooClient()
+                .searchAndRead(
+                        Constants.SALE_ORDER_MODEL,
+                        List.of(
+                                asList("client_order_ref", "=", ENCOUNTER_PART_OF_UUID),
+                                asList("state", "=", "cancel")),
+                        orderDefaultAttributes);
+
+        assertNotNull(result);
+        assertEquals(0, result.length);
+    }
+
+    @Test
+    @DisplayName("Should remove sale order line when service request intent is not an order.")
+    public void shouldRemoveSaleOrderLineWhenServiceRequestIntentNotOrder() {
+        // Setup
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Observation\\?.*"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.bundle/observation-weight-bundle.json"))));
+
+        // Create sale order with a sale order line (intent is ORDER in the fixture)
+        var headers = new HashMap<String, Object>();
+        headers.put(HEADER_FHIR_EVENT_TYPE, "c");
+        sendBodyAndHeaders("direct:service-request-to-sale-order-processor", serviceRequestBundle, headers);
+
+        Object[] result = getOdooClient()
+                .searchAndRead(
+                        Constants.SALE_ORDER_MODEL,
+                        List.of(asList("client_order_ref", "=", ENCOUNTER_PART_OF_UUID), asList("state", "=", "draft")),
+                        orderDefaultAttributes);
+
+        assertNotNull(result);
+        assertNotNull(result[0]);
+
+        SaleOrder createdSaleOrder = getOdooUtils().convertToObject((Map<String, Object>) result[0], SaleOrder.class);
+        assertFalse(createdSaleOrder.getOrderLine().isEmpty());
+
+        // A non-order intent (MODIFY option in OpenMRS) removes the sale order line
+        for (Bundle.BundleEntryComponent entry : serviceRequestBundle.getEntry()) {
+            if (entry.getResource() instanceof ServiceRequest serviceRequest) {
+                serviceRequest.setIntent(ServiceRequest.ServiceRequestIntent.PLAN);
+            }
+        }
+
+        headers.put(HEADER_FHIR_EVENT_TYPE, "u");
+        sendBodyAndHeaders("direct:service-request-to-sale-order-processor", serviceRequestBundle, headers);
+
+        // Verify sale order line removed while the sale order remains a draft
+        result = getOdooClient()
+                .searchAndRead(
+                        Constants.SALE_ORDER_MODEL,
+                        List.of(asList("client_order_ref", "=", ENCOUNTER_PART_OF_UUID), asList("state", "=", "draft")),
+                        orderDefaultAttributes);
+
+        assertNotNull(result);
+        assertNotNull(result[0]);
+
+        SaleOrder updatedSaleOrder = getOdooUtils().convertToObject((Map<String, Object>) result[0], SaleOrder.class);
+
+        assertNotNull(updatedSaleOrder);
+        assertEquals("draft", updatedSaleOrder.getOrderState());
+        assertTrue(updatedSaleOrder.getOrderLine().isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should throw exception given an unsupported event type.")
+    public void shouldThrowExceptionGivenUnsupportedEventType() {
+        // Setup
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Observation\\?.*"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.bundle/observation-weight-bundle.json"))));
+
+        // Act - an unsupported event type must fail the route
+        var headers = new HashMap<String, Object>();
+        headers.put(HEADER_FHIR_EVENT_TYPE, "x");
+
+        assertThrows(
+                CamelExecutionException.class,
+                () -> sendBodyAndHeaders(
+                        "direct:service-request-to-sale-order-processor", serviceRequestBundle, headers));
+
+        // Verify no sale order was created
+        Object[] result = getOdooClient()
+                .searchAndRead(
+                        Constants.SALE_ORDER_MODEL,
+                        List.of(asList("client_order_ref", "=", ENCOUNTER_PART_OF_UUID)),
+                        orderDefaultAttributes);
+
+        assertNotNull(result);
+        assertEquals(0, result.length);
     }
 }
