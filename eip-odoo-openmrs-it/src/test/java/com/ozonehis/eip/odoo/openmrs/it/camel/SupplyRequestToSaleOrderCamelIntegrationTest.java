@@ -136,4 +136,106 @@ public class SupplyRequestToSaleOrderCamelIntegrationTest extends BaseRouteCamel
         assertEquals(ENCOUNTER_PART_OF_UUID, createdSaleOrder.getOrderClientOrderRef());
         assertEquals("draft", createdSaleOrder.getOrderState());
     }
+
+    @Test
+    @DisplayName("Should cancel sale order in Odoo given supply request when supply discontinued")
+    public void shouldCancelSaleOrderInOdooGivenSupplyRequest() {
+        // Setup
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Observation\\?.*"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.bundle/empty-bundle.json"))));
+
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Encounter/" + ENCOUNTER_UUID))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.encounter/encounter.json"))));
+
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Patient/" + PATIENT_UUID))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir/patient/patient-3.json"))));
+
+        // Create sale order
+        var headers = new HashMap<String, Object>();
+        headers.put(HEADER_FHIR_EVENT_TYPE, "c");
+        Bundle bundle = new Bundle();
+        bundle.addEntry().setResource(supplyRequest);
+        sendBodyAndHeaders("direct:supplyrequest-to-sale-order-processor", bundle, headers);
+
+        // Verify sale order created
+        Object[] result = getOdooClient()
+                .searchAndRead(
+                        Constants.SALE_ORDER_MODEL,
+                        List.of(asList("client_order_ref", "=", ENCOUNTER_PART_OF_UUID), asList("state", "=", "draft")),
+                        orderDefaultAttributes);
+
+        assertNotNull(result);
+        assertNotNull(result[0]);
+
+        // Discontinue supply request
+        headers.put(HEADER_FHIR_EVENT_TYPE, "d");
+        Bundle discontinueBundle = new Bundle();
+        discontinueBundle.addEntry().setResource(supplyRequest);
+        sendBodyAndHeaders("direct:supplyrequest-to-sale-order-processor", discontinueBundle, headers);
+
+        // Verify sale order cancelled
+        result = getOdooClient()
+                .searchAndRead(
+                        Constants.SALE_ORDER_MODEL,
+                        List.of(
+                                asList("client_order_ref", "=", ENCOUNTER_PART_OF_UUID),
+                                asList("state", "=", "cancel")),
+                        orderDefaultAttributes);
+
+        assertNotNull(result);
+        assertNotNull(result[0]);
+
+        SaleOrder updatedSaleOrder = getOdooUtils().convertToObject((Map<String, Object>) result[0], SaleOrder.class);
+
+        assertNotNull(updatedSaleOrder);
+        assertEquals(ENCOUNTER_PART_OF_UUID, updatedSaleOrder.getOrderClientOrderRef());
+        assertEquals("cancel", updatedSaleOrder.getOrderState());
+
+        // verify sale order has no sale order line
+        assertTrue(updatedSaleOrder.getOrderLine().isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should not create sale order in Odoo given a non-active supply request")
+    public void shouldNotCreateSaleOrderInOdooGivenInactiveSupplyRequest() {
+        // Setup
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Observation\\?.*"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.bundle/empty-bundle.json"))));
+
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Encounter/" + ENCOUNTER_UUID))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir.encounter/encounter.json"))));
+
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Patient/" + PATIENT_UUID))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readJSON("fhir/patient/patient-3.json"))));
+
+        // Act - a non-active supply request must not produce a sale order
+        supplyRequest.setStatus(SupplyRequest.SupplyRequestStatus.SUSPENDED);
+        var headers = new HashMap<String, Object>();
+        headers.put(HEADER_FHIR_EVENT_TYPE, "c");
+        Bundle bundle = new Bundle();
+        bundle.addEntry().setResource(supplyRequest);
+        sendBodyAndHeaders("direct:supplyrequest-to-sale-order-processor", bundle, headers);
+
+        // Verify no sale order was created
+        Object[] result = getOdooClient()
+                .searchAndRead(
+                        Constants.SALE_ORDER_MODEL,
+                        List.of(asList("client_order_ref", "=", ENCOUNTER_PART_OF_UUID)),
+                        orderDefaultAttributes);
+
+        assertNotNull(result);
+        assertEquals(0, result.length);
+    }
 }
