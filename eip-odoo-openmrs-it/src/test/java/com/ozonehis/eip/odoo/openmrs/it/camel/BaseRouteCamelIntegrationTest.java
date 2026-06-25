@@ -94,6 +94,7 @@ public abstract class BaseRouteCamelIntegrationTest {
             "id",
             "client_order_ref",
             "partner_id",
+            "company_id",
             "state",
             "order_line",
             odooCustomerWeightField,
