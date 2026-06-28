@@ -4,6 +4,11 @@ on:
   repository_dispatch:
     types: [ eip-openmrs-senaite-it ]
 
+# Cancel a previous, still-running dispatch so the latest one wins (saves the long Ozone-stack run).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.client_payload.sha || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   spotless:
     uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-spotless-check.yml@main

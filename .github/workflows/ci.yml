@@ -8,6 +8,11 @@ on:
   release:
     types: [published]
 
+# Cancel superseded runs for the same PR; never cancel main/release (they publish).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   validate:
     uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-build-test.yml@main
@@ -15,13 +20,13 @@ jobs:
       NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
+  # Runs in parallel with `validate` (it is independent of build/test) for faster feedback.
   spotless:
-    needs: validate
     uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-spotless-check.yml@main
 
   publish:
     if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'release' }}
-    needs: spotless
+    needs: [validate, spotless]
     uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-publish.yml@main
     secrets:
       NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
