@@ -9,8 +9,11 @@ on:
     types: [published]
 
 # Cancel superseded runs for the same PR; never cancel main/release (they publish).
+# NOTE: the distinct `-top-` token keeps this group from colliding with the
+# `maven-spotless-check` reusable workflow's own concurrency group (which evaluates
+# to `${{ github.workflow }}-<ref>` here) — an identical group would deadlock.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  group: ${{ github.workflow }}-top-${{ github.event.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:

@@ -5,8 +5,10 @@ on:
     types: [ eip-odoo-openmrs-it ]
 
 # Cancel a previous, still-running dispatch so the latest one wins (saves the long Ozone-stack run).
+# The `-dispatch-` token keeps this group distinct from the `maven-spotless-check` reusable
+# workflow's own group (`${{ github.workflow }}-<ref>`); an identical group would deadlock.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.client_payload.sha || github.ref }}
+  group: ${{ github.workflow }}-dispatch-${{ github.event.client_payload.sha || github.ref }}
   cancel-in-progress: true
 
 jobs:
