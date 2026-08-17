@@ -114,7 +114,7 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
                         .withBody(readJSON("metadata.json"))));
 
         // Mock GET Task API
-        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Task"))
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Task.*"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(readJSON("fhir.bundle/task-empty-bundle.json"))));
@@ -177,7 +177,7 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
                         .withBody(readJSON("metadata.json"))));
 
         // Mock GET Task API
-        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Task"))
+        stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Task.*"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(readJSON("fhir.bundle/task-empty-bundle.json"))));
