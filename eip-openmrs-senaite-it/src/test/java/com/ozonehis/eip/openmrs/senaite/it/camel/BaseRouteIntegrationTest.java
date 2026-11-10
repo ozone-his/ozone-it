@@ -39,6 +39,7 @@ import com.ozonehis.eip.openmrs.senaite.routes.analysisRequestTemplate.GetAnalys
 import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.CreateAnalysisRequestRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.GetAnalysisRequestByClientSampleIDRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.GetAnalysisRequestRoute;
+import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.SearchAnalysisRequestsRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.analysisrequest.UpdateAnalysisRequestRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.client.CreateClientRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.client.GetClientRoute;
@@ -46,6 +47,7 @@ import com.ozonehis.eip.openmrs.senaite.routes.client.UpdateClientRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.contact.CreateContactRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.contact.GetContactRoute;
 import com.ozonehis.eip.openmrs.senaite.routes.openmrsFhirTask.GetOpenmrsFhirTaskByStatusRoute;
+import com.ozonehis.eip.openmrs.senaite.schedulers.AnalysisRequestChangePoller;
 import jakarta.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -54,6 +56,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.http.HttpComponent;
 import org.apache.camel.test.infra.core.CamelContextExtension;
 import org.apache.camel.test.infra.core.DefaultCamelContextExtension;
@@ -69,6 +72,8 @@ import org.springframework.test.context.ActiveProfiles;
 @CamelSpringBootTest
 public abstract class BaseRouteIntegrationTest {
 
+    public static final String RESULT_ENCOUNTER_TYPE_UUID = "7aa974b5-7523-11eb-8077-0242ac120009";
+
     private SenaiteConfig senaiteConfig;
 
     private static final String SENAITE_SERVER_URL = "http://localhost:8080/senaite";
@@ -76,6 +81,25 @@ public abstract class BaseRouteIntegrationTest {
     private static final String SENAITE_USERNAME = "admin";
 
     private static final String SENAITE_PASSWORD = "password";
+
+    // Shared across JUnit test instances: RouteFixture runs once on the static Camel context.
+    protected static AnalysisRequestChangePoller analysisRequestChangePoller;
+
+    protected static TaskProcessor taskProcessor;
+
+    protected static AnalysisRequestHandler analysisRequestHandler;
+
+    protected AnalysisRequestChangePoller getAnalysisRequestChangePoller() {
+        return analysisRequestChangePoller;
+    }
+
+    protected TaskProcessor getTaskProcessor() {
+        return taskProcessor;
+    }
+
+    protected AnalysisRequestHandler getAnalysisRequestHandler() {
+        return analysisRequestHandler;
+    }
 
     @RegisterExtension
     protected static CamelContextExtension contextExtension = new DefaultCamelContextExtension();
@@ -99,6 +123,10 @@ public abstract class BaseRouteIntegrationTest {
         return senaiteConfig;
     }
 
+    protected ProducerTemplate getProducerTemplate() {
+        return contextExtension.getProducerTemplate();
+    }
+
     protected @Nonnull CamelContext getContextWithRouting(CamelContext context) throws Exception {
         // Setup IGenericClient
         FhirContext fhirContext = FhirContext.forR4();
@@ -114,7 +142,7 @@ public abstract class BaseRouteIntegrationTest {
         ClientMapper clientMapper = new ClientMapper();
         ContactMapper contactMapper = new ContactMapper();
         AnalysisRequestMapper analysisRequestMapper = new AnalysisRequestMapper();
-        AnalysisRequestHandler analysisRequestHandler = new AnalysisRequestHandler();
+        analysisRequestHandler = new AnalysisRequestHandler();
         ContactHandler contactHandler = new ContactHandler();
         AnalysisRequestTemplateHandler analysisRequestTemplateHandler = new AnalysisRequestTemplateHandler();
         AnalysesHandler analysesHandler = new AnalysesHandler();
@@ -123,7 +151,7 @@ public abstract class BaseRouteIntegrationTest {
 
         TaskHandler taskHandler = new TaskHandler(client);
         ServiceRequestHandler serviceRequestHandler = new ServiceRequestHandler(client);
-        EncounterHandler encounterHandler = new EncounterHandler("7aa974b5-7523-11eb-8077-0242ac120009", client);
+        EncounterHandler encounterHandler = new EncounterHandler(RESULT_ENCOUNTER_TYPE_UUID, client);
         ObservationHandler observationHandler = new ObservationHandler(client);
         DiagnosticReportHandler diagnosticReportHandler = new DiagnosticReportHandler(client);
 
@@ -142,7 +170,7 @@ public abstract class BaseRouteIntegrationTest {
         serviceRequestProcessor.setTaskHandler(taskHandler);
         serviceRequestProcessor.setTaskMapper(taskMapper);
 
-        TaskProcessor taskProcessor = new TaskProcessor();
+        taskProcessor = new TaskProcessor();
         taskProcessor.setServiceRequestHandler(serviceRequestHandler);
         taskProcessor.setTaskHandler(taskHandler);
         taskProcessor.setAnalysisRequestHandler(analysisRequestHandler);
@@ -150,6 +178,14 @@ public abstract class BaseRouteIntegrationTest {
         taskProcessor.setAnalysesHandler(analysesHandler);
         taskProcessor.setObservationHandler(observationHandler);
         taskProcessor.setDiagnosticReportHandler(diagnosticReportHandler);
+        taskProcessor.setResultEncounterTypeUUID(RESULT_ENCOUNTER_TYPE_UUID);
+        taskProcessor.setRunWithBahmniEmr("false");
+
+        analysisRequestChangePoller = new AnalysisRequestChangePoller();
+        analysisRequestChangePoller.setAnalysisRequestHandler(analysisRequestHandler);
+        analysisRequestChangePoller.setTaskHandler(taskHandler);
+        analysisRequestChangePoller.setTaskProcessor(taskProcessor);
+        analysisRequestChangePoller.setLookback("PT24H");
 
         ResourceConverter resourceConverter = new ResourceConverter();
 
@@ -170,6 +206,7 @@ public abstract class BaseRouteIntegrationTest {
         GetAnalysisRequestByClientSampleIDRoute getAnalysisRequestByClientSampleIDRoute =
                 new GetAnalysisRequestByClientSampleIDRoute(getSenaiteConfig());
         GetAnalysisRequestRoute getAnalysisRequestRoute = new GetAnalysisRequestRoute(getSenaiteConfig());
+        SearchAnalysisRequestsRoute searchAnalysisRequestsRoute = new SearchAnalysisRequestsRoute(getSenaiteConfig());
         UpdateAnalysisRequestRoute updateAnalysisRequestRoute = new UpdateAnalysisRequestRoute(getSenaiteConfig());
         GetAnalysisRequestTemplateRoute getAnalysisRequestTemplateRoute =
                 new GetAnalysisRequestTemplateRoute(getSenaiteConfig());
@@ -187,6 +224,7 @@ public abstract class BaseRouteIntegrationTest {
         context.addRoutes(createAnalysisRequestRoute);
         context.addRoutes(getAnalysisRequestByClientSampleIDRoute);
         context.addRoutes(getAnalysisRequestRoute);
+        context.addRoutes(searchAnalysisRequestsRoute);
         context.addRoutes(updateAnalysisRequestRoute);
         context.addRoutes(getAnalysisRequestTemplateRoute);
         context.addRoutes(createClientRoute);

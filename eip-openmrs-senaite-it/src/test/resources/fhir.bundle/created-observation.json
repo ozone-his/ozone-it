@@ -1,0 +1,21 @@
+{
+  "resourceType": "Observation",
+  "id": "lab-result-obs-001",
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "code": "857AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/487b174a-8f7a-475f-899b-752cf419edba"
+  },
+  "encounter": {
+    "reference": "Encounter/lab-result-encounter-001"
+  },
+  "valueQuantity": {
+    "value": 12.5
+  }
+}

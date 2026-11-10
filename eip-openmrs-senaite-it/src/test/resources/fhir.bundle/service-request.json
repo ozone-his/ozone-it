@@ -1,0 +1,34 @@
+{
+  "resourceType": "ServiceRequest",
+  "id": "5a92fd97-89ed-48df-aea5-907f42810709",
+  "status": "active",
+  "intent": "order",
+  "code": {
+    "coding": [
+      {
+        "code": "857AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "display": "Blood urea nitrogen"
+      },
+      {
+        "system": "http://loinc.org",
+        "code": "14937-7"
+      }
+    ],
+    "text": "Blood urea nitrogen"
+  },
+  "subject": {
+    "reference": "Patient/487b174a-8f7a-475f-899b-752cf419edba",
+    "type": "Patient"
+  },
+  "encounter": {
+    "reference": "Encounter/2a0d7092-4b8b-45bc-8ad5-2d187f7e1843",
+    "type": "Encounter"
+  },
+  "occurrencePeriod": {
+    "start": "2024-10-10T18:30:11+00:00"
+  },
+  "requester": {
+    "reference": "Practitioner/8e84a8d4-c8c5-43a0-bb89-f4bc46f976c1",
+    "type": "Practitioner"
+  }
+}

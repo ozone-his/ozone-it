@@ -1,0 +1,19 @@
+{
+  "resourceType": "DiagnosticReport",
+  "id": "lab-result-dr-001",
+  "status": "final",
+  "code": {
+    "text": "Blood urea nitrogen"
+  },
+  "subject": {
+    "reference": "Patient/487b174a-8f7a-475f-899b-752cf419edba"
+  },
+  "encounter": {
+    "reference": "Encounter/lab-result-encounter-001"
+  },
+  "result": [
+    {
+      "reference": "Observation/lab-result-obs-001"
+    }
+  ]
+}

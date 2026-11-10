@@ -1,0 +1,13 @@
+{
+  "resourceType": "Bundle",
+  "id": "empty-search",
+  "type": "searchset",
+  "total": 0,
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://localhost/openmrs/ws/fhir2/R4"
+    }
+  ],
+  "entry": []
+}
