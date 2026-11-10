@@ -75,8 +75,8 @@ public class OpenMrsWireMockSupport {
     }
 
     public void stubTaskSearch(String status) {
-        wireMockServer.stubFor(get(urlMatching("/openmrs/ws/fhir2/R4/Task.*"))
-                .willReturn(jsonResponse(taskBundle(status))));
+        wireMockServer.stubFor(
+                get(urlMatching("/openmrs/ws/fhir2/R4/Task.*")).willReturn(jsonResponse(taskBundle(status))));
     }
 
     public void stubEmptyTaskSearch() {
@@ -93,8 +93,8 @@ public class OpenMrsWireMockSupport {
     }
 
     public void stubTaskUpdate(String status) {
-        wireMockServer.stubFor(put(urlMatching("/openmrs/ws/fhir2/R4/Task/.*"))
-                .willReturn(jsonResponse(taskResource(status))));
+        wireMockServer.stubFor(
+                put(urlMatching("/openmrs/ws/fhir2/R4/Task/.*")).willReturn(jsonResponse(taskResource(status))));
     }
 
     public void stubServiceRequestRead() {
@@ -118,12 +118,14 @@ public class OpenMrsWireMockSupport {
 
     public void stubCreateEncounter() {
         wireMockServer.stubFor(post(urlEqualTo("/openmrs/ws/fhir2/R4/Encounter"))
-                .willReturn(jsonResponse(jsonLoader.apply("fhir.bundle/created-encounter.json")).withStatus(201)));
+                .willReturn(jsonResponse(jsonLoader.apply("fhir.bundle/created-encounter.json"))
+                        .withStatus(201)));
     }
 
     public void stubCreateObservation() {
         wireMockServer.stubFor(post(urlEqualTo("/openmrs/ws/fhir2/R4/Observation"))
-                .willReturn(jsonResponse(jsonLoader.apply("fhir.bundle/created-observation.json")).withStatus(201)));
+                .willReturn(jsonResponse(jsonLoader.apply("fhir.bundle/created-observation.json"))
+                        .withStatus(201)));
     }
 
     public void stubCreateDiagnosticReport() {
@@ -218,7 +220,8 @@ public class OpenMrsWireMockSupport {
         return "{"
                 + "\"resourceType\":\"Task\","
                 + "\"id\":\"" + TASK_ID + "\","
-                + "\"basedOn\":[{\"reference\":\"ServiceRequest/" + serviceRequestId + "\",\"type\":\"ServiceRequest\"}],"
+                + "\"basedOn\":[{\"reference\":\"ServiceRequest/" + serviceRequestId
+                + "\",\"type\":\"ServiceRequest\"}],"
                 + "\"status\":\"" + status + "\","
                 + "\"intent\":\"order\""
                 + "}";

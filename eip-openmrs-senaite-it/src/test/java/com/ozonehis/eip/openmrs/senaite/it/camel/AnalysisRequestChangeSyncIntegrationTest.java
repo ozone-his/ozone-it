@@ -95,8 +95,7 @@ public class AnalysisRequestChangeSyncIntegrationTest extends BaseRouteIntegrati
         if (INTERCEPT_INSTALLED.compareAndSet(false, true)) {
             AdviceWith.adviceWith(context, "senaite-get-analysis-request-route", a -> a.weaveAddFirst()
                     .process(exchange -> {
-                        Boolean complete =
-                                exchange.getIn().getHeader(Constants.HEADER_SENAITE_COMPLETE, Boolean.class);
+                        Boolean complete = exchange.getIn().getHeader(Constants.HEADER_SENAITE_COMPLETE, Boolean.class);
                         String clientSampleId =
                                 exchange.getIn().getHeader(Constants.HEADER_CLIENT_SAMPLE_ID, String.class);
                         SENAITE_GET_URLS.add((Boolean.TRUE.equals(complete) ? "complete=true" : "complete=false")
@@ -168,9 +167,8 @@ public class AnalysisRequestChangeSyncIntegrationTest extends BaseRouteIntegrati
         openMrs.resetRequests();
         SENAITE_GET_URLS.clear();
 
-        Bundle taskBundle = FhirContext.forR4()
-                .newJsonParser()
-                .parseResource(Bundle.class, openMrs.taskBundleJson("requested"));
+        Bundle taskBundle =
+                FhirContext.forR4().newJsonParser().parseResource(Bundle.class, openMrs.taskBundleJson("requested"));
         Exchange exchange = new DefaultExchange(contextExtension.getContext());
         exchange.getMessage().setBody(taskBundle);
         getTaskProcessor().process(exchange);
@@ -269,8 +267,7 @@ public class AnalysisRequestChangeSyncIntegrationTest extends BaseRouteIntegrati
             analysisRequest = createAnalysisRequest();
         }
         if (!"published".equalsIgnoreCase(analysisRequest.getReviewState())) {
-            senaiteWorkflow.publishSampleWithResult(
-                    analysisRequest.getUid(), analysisRequest.getClient(), "12.5");
+            senaiteWorkflow.publishSampleWithResult(analysisRequest.getUid(), analysisRequest.getClient(), "12.5");
             analysisRequest = refetchAnalysisRequest();
         }
         assertEquals("published", analysisRequest.getReviewState());

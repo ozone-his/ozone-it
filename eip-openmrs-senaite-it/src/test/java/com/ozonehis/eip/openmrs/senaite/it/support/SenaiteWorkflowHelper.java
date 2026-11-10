@@ -227,8 +227,8 @@ public class SenaiteWorkflowHelper {
                 throw new RuntimeException(e);
             }
         }
-        throw new IllegalStateException("Timed out waiting for AnalysisRequest " + analysisRequestUid
-                + " to reach " + expectedState + " (last=" + lastState + ")");
+        throw new IllegalStateException("Timed out waiting for AnalysisRequest " + analysisRequestUid + " to reach "
+                + expectedState + " (last=" + lastState + ")");
     }
 
     private String get(String url) {
@@ -254,12 +254,12 @@ public class SenaiteWorkflowHelper {
         try (Response response = client.newCall(request).execute()) {
             String body = response.body() == null ? "" : response.body().string();
             if (!response.isSuccessful()) {
-                throw new IOException("HTTP " + response.code() + " for " + request.method() + " " + request.url()
-                        + ": " + body);
+                throw new IOException(
+                        "HTTP " + response.code() + " for " + request.method() + " " + request.url() + ": " + body);
             }
             if (body.contains("\"success\": false") || body.contains("\"success\":false")) {
-                throw new IOException("SENAITE request failed for " + request.method() + " " + request.url()
-                        + ": " + body);
+                throw new IOException(
+                        "SENAITE request failed for " + request.method() + " " + request.url() + ": " + body);
             }
             return body;
         } catch (IOException e) {
