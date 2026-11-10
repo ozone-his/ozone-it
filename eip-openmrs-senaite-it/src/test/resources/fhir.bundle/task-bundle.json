@@ -22,10 +22,6 @@
           "versionId": "1730277768000",
           "lastUpdated": "2024-10-30T08:42:48.000+00:00"
         },
-        "text": {
-          "status": "generated",
-          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody><tr><td>Id:</td><td>5e9139c3-1bf5-44d1-8524-c2df9f620570</td></tr><tr><td>Identifier:</td><td><div>5e9139c3-1bf5-44d1-8524-c2df9f620570</div></td></tr><tr><td>Based On:</td><td><a href=\"http://localhost:8080/openmrs/ws/fhir2/R4/88e383f6-3378-42ff-a318-36ccf6eac46d\">88e383f6-3378-42ff-a318-36ccf6eac46d</a></td></tr><tr><td>Status:</td><td>REQUESTED</td></tr><tr><td>Intent:</td><td>ORDER</td></tr><tr><td>Authored On:</td><td>30/10/2024</td></tr><tr><td>Last Modified:</td><td>30/10/2024</td></tr></tbody></table></div>"
-        },
         "identifier": [
           {
             "system": "http://fhir.openmrs.org/ext/task/identifier",
@@ -34,7 +30,7 @@
         ],
         "basedOn": [
           {
-            "reference": "88e383f6-3378-42ff-a318-36ccf6eac46d",
+            "reference": "ServiceRequest/5a92fd97-89ed-48df-aea5-907f42810709",
             "type": "ServiceRequest"
           }
         ],

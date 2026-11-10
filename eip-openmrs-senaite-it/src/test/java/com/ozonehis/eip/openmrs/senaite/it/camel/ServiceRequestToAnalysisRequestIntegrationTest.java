@@ -96,6 +96,7 @@ public class ServiceRequestToAnalysisRequestIntegrationTest extends BaseRouteInt
         assertTrue(hasRoute(contextExtension.getContext(), "senaite-get-contact-route"));
         assertTrue(hasRoute(contextExtension.getContext(), "senaite-create-contact-route"));
         assertTrue(hasRoute(contextExtension.getContext(), "senaite-get-analysis-request-route"));
+        assertTrue(hasRoute(contextExtension.getContext(), "senaite-search-analysis-requests-route"));
         assertTrue(hasRoute(contextExtension.getContext(), "senaite-get-analysis-request-template-route"));
         assertTrue(hasRoute(contextExtension.getContext(), "senaite-create-analysis-request-route"));
         assertTrue(hasRoute(contextExtension.getContext(), "senaite-get-analysis-request-by-client-sample-id-route"));

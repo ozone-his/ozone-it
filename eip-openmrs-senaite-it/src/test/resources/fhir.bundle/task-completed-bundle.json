@@ -1,0 +1,31 @@
+{
+  "resourceType": "Bundle",
+  "id": "7834493d-4725-45c8-8b84-3127f48b8e1d",
+  "type": "searchset",
+  "total": 1,
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://localhost/openmrs/ws/fhir2/R4/Task"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "http://localhost/openmrs/ws/fhir2/R4/Task/5e9139c3-1bf5-44d1-8524-c2df9f620570",
+      "resource": {
+        "resourceType": "Task",
+        "id": "5e9139c3-1bf5-44d1-8524-c2df9f620570",
+        "basedOn": [
+          {
+            "reference": "ServiceRequest/5a92fd97-89ed-48df-aea5-907f42810709",
+            "type": "ServiceRequest"
+          }
+        ],
+        "status": "completed",
+        "intent": "order",
+        "authoredOn": "2024-10-30T08:42:48+00:00",
+        "lastModified": "2024-10-30T08:42:48+00:00"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "resourceType": "Task",
+  "id": "5e9139c3-1bf5-44d1-8524-c2df9f620570",
+  "basedOn": [
+    {
+      "reference": "ServiceRequest/5a92fd97-89ed-48df-aea5-907f42810709",
+      "type": "ServiceRequest"
+    }
+  ],
+  "status": "accepted",
+  "intent": "order"
+}
